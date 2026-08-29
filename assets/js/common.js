@@ -72,3 +72,46 @@ async function initializeWebsite() {
 
 // Start
 initializeWebsite();
+
+
+
+// ================================
+// Mobile Offcanvas Menu
+// ================================
+
+document.addEventListener("click", function (e) {
+
+    // Open mobile menu
+    const menuButton = e.target.closest(".sidebar-menu");
+
+    if (menuButton) {
+        e.preventDefault();
+
+        const offcanvas = document.querySelector(".offcanvas-info");
+
+        if (offcanvas) {
+            offcanvas.classList.add("show");
+            document.body.classList.add("menu-open");
+
+            console.log("Mobile menu opened");
+        }
+    }
+
+
+    // Close mobile menu
+    const closeButton = e.target.closest(".offcanvas-close");
+
+    if (closeButton) {
+        e.preventDefault();
+
+        const offcanvas = document.querySelector(".offcanvas-info");
+
+        if (offcanvas) {
+            offcanvas.classList.remove("show");
+            document.body.classList.remove("menu-open");
+
+            console.log("Mobile menu closed");
+        }
+    }
+
+});
