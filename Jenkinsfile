@@ -22,6 +22,38 @@ pipeline {
             }
         }
 
+
+stage('Check Remote Connection') {
+    steps {
+        withCredentials([
+            string(credentialsId: 'web-server-ip', variable: 'SERVER_IP'),
+            usernamePassword(
+                credentialsId: 'web-server-creds',
+                usernameVariable: 'USER',
+                passwordVariable: 'PASS'
+            )
+        ]) {
+            sh '''
+                echo "Testing remote connection..."
+
+                sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no \
+                $USER@$SERVER_IP "
+                    echo 'Remote logged-in user:'
+                    whoami
+
+                    echo 'Directory permissions:'
+                    ls -ld /var/www/dreamstour
+
+                    echo 'Write test:'
+                    touch /var/www/dreamstour/jenkins-test.txt
+                    rm -f /var/www/dreamstour/jenkins-test.txt
+                "
+            '''
+        }
+    }
+}
+
+
         stage('Deploy Website to Nginx') {
     steps {
         withCredentials([
