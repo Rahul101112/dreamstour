@@ -23,6 +23,47 @@ async function loadComponent(elementId, filePath) {
 }
 
 
+// Set Active Navigation Menu
+function setActiveMenu() {
+
+    // Get current page name
+    let currentPage = window.location.pathname.split('/').pop();
+
+    // If URL is root
+    if (!currentPage || currentPage === '/') {
+        currentPage = 'index.html';
+    }
+
+    console.log("Current page:", currentPage);
+
+    // Get all main navigation items
+    const menuItems = document.querySelectorAll(
+        '#mobile-menu .main-nav > li'
+    );
+
+    menuItems.forEach((item) => {
+
+        const link = item.querySelector(':scope > a');
+
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+
+        // Remove active from all
+        item.classList.remove('active');
+        link.classList.remove('active');
+
+        // Add active to current page
+        if (href === currentPage) {
+            item.classList.add('active');
+            link.classList.add('active');
+
+            console.log("Active menu set:", href);
+        }
+    });
+}
+
+
 // Load JavaScript dynamically
 function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -101,7 +142,11 @@ async function initializeWebsite() {
         "/includes/header.html"
     );
 
-    // 2. Load Footer
+    // 2. Set active menu AFTER header is loaded
+    setActiveMenu();
+
+
+    // 3. Load Footer
     await loadComponent(
         "footer-placeholder",
         "/includes/footer.html"
@@ -110,15 +155,15 @@ async function initializeWebsite() {
     console.log("All components loaded");
 
 
-    // 3. Initialize hamburger open/close
+    // 4. Initialize hamburger open/close
     initOffcanvasMenu();
 
 
-    // 4. Load Mobile Menu script AFTER header exists
+    // 5. Load Mobile Menu script AFTER header exists
     await loadScript("/assets/js/mobile-menu.js");
 
 
-    // 5. Explicitly initialize mobile menu
+    // 6. Explicitly initialize mobile menu
     if (typeof window.initMobileMenu === "function") {
         window.initMobileMenu();
         console.log("Mobile menu initialized successfully");
@@ -127,7 +172,7 @@ async function initializeWebsite() {
     }
 
 
-    // 6. Load theme script
+    // 7. Load theme script
     await loadScript("/assets/js/theme-script.js");
 
 
