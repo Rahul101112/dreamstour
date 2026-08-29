@@ -152,6 +152,11 @@ async function initializeWebsite() {
         "/includes/footer.html"
     );
 
+    await loadComponent(
+        "whatsapp-placeholder",
+        "/includes/whatsapp.html"
+    );
+
     console.log("All components loaded");
 
 
