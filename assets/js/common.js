@@ -1,6 +1,6 @@
 console.log("common.js started");
 
-// Function to load HTML components
+// Load HTML component
 async function loadComponent(elementId, filePath) {
     try {
         const response = await fetch(filePath);
@@ -10,7 +10,6 @@ async function loadComponent(elementId, filePath) {
         }
 
         const html = await response.text();
-
         const element = document.getElementById(elementId);
 
         if (element) {
@@ -24,11 +23,18 @@ async function loadComponent(elementId, filePath) {
 }
 
 
-// Function to load JavaScript dynamically
+// Load JavaScript dynamically
 function loadScript(src) {
     return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
 
+        // Prevent duplicate script loading
+        if (document.querySelector(`script[src="${src}"]`)) {
+            console.log(`${src} already loaded`);
+            resolve();
+            return;
+        }
+
+        const script = document.createElement("script");
         script.src = src;
 
         script.onload = () => {
@@ -38,7 +44,7 @@ function loadScript(src) {
 
         script.onerror = () => {
             console.error(`Failed to load ${src}`);
-            reject();
+            reject(new Error(`Failed to load ${src}`));
         };
 
         document.body.appendChild(script);
@@ -46,10 +52,50 @@ function loadScript(src) {
 }
 
 
-// Load everything in correct order
+// Mobile Offcanvas Open / Close
+function initOffcanvasMenu() {
+
+    document.addEventListener("click", function (e) {
+
+        // Open menu
+        const menuButton = e.target.closest(".sidebar-menu");
+
+        if (menuButton) {
+            e.preventDefault();
+
+            const offcanvas = document.querySelector(".offcanvas-info");
+
+            if (offcanvas) {
+                offcanvas.classList.add("show");
+                document.body.classList.add("menu-open");
+            }
+        }
+
+
+        // Close menu
+        const closeButton = e.target.closest(".offcanvas-close");
+
+        if (closeButton) {
+            e.preventDefault();
+
+            const offcanvas = document.querySelector(".offcanvas-info");
+
+            if (offcanvas) {
+                offcanvas.classList.remove("show");
+                document.body.classList.remove("menu-open");
+            }
+        }
+
+    });
+
+    console.log("Offcanvas menu initialized");
+}
+
+
+// Main initialization
 async function initializeWebsite() {
 
-    // 1. Load Header
+    // 1. Load Header FIRST
     await loadComponent(
         "header-placeholder",
         "/includes/header.html"
@@ -63,55 +109,31 @@ async function initializeWebsite() {
 
     console.log("All components loaded");
 
-    // 3. Load theme JavaScript AFTER header exists
+
+    // 3. Initialize hamburger open/close
+    initOffcanvasMenu();
+
+
+    // 4. Load Mobile Menu script AFTER header exists
+    await loadScript("/assets/js/mobile-menu.js");
+
+
+    // 5. Explicitly initialize mobile menu
+    if (typeof window.initMobileMenu === "function") {
+        window.initMobileMenu();
+        console.log("Mobile menu initialized successfully");
+    } else {
+        console.error("initMobileMenu function not found");
+    }
+
+
+    // 6. Load theme script
     await loadScript("/assets/js/theme-script.js");
+
 
     console.log("Website initialized successfully");
 }
 
 
-// Start
+// Start website
 initializeWebsite();
-
-
-
-// ================================
-// Mobile Offcanvas Menu
-// ================================
-
-document.addEventListener("click", function (e) {
-
-    // Open mobile menu
-    const menuButton = e.target.closest(".sidebar-menu");
-
-    if (menuButton) {
-        e.preventDefault();
-
-        const offcanvas = document.querySelector(".offcanvas-info");
-
-        if (offcanvas) {
-            offcanvas.classList.add("show");
-            document.body.classList.add("menu-open");
-
-            console.log("Mobile menu opened");
-        }
-    }
-
-
-    // Close mobile menu
-    const closeButton = e.target.closest(".offcanvas-close");
-
-    if (closeButton) {
-        e.preventDefault();
-
-        const offcanvas = document.querySelector(".offcanvas-info");
-
-        if (offcanvas) {
-            offcanvas.classList.remove("show");
-            document.body.classList.remove("menu-open");
-
-            console.log("Mobile menu closed");
-        }
-    }
-
-});
