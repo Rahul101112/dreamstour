@@ -1,33 +1,38 @@
 async function loadComponent(id, path) {
     const element = document.getElementById(id);
 
-    if (!element) {
-        console.warn(`Element not found: ${id}`);
-        return;
-    }
+    if (!element) return;
 
     try {
         const response = await fetch(path);
 
         if (!response.ok) {
-            throw new Error(`Failed to load ${path}: ${response.status}`);
+            throw new Error(`Failed to load ${path}`);
         }
 
-        const html = await response.text();
-        element.innerHTML = html;
-
+        element.innerHTML = await response.text();
         console.log(`Successfully loaded: ${path}`);
 
     } catch (error) {
-        console.error(`Error loading ${path}:`, error);
+        console.error(error);
     }
 }
 
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+    });
+}
 
 document.addEventListener("DOMContentLoaded", async function () {
 
     console.log("Common JS started");
 
+    // Load reusable components first
     await loadComponent(
         "header-placeholder",
         "/includes/header.html"
@@ -38,12 +43,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         "/includes/footer.html"
     );
 
-    // Hide page loader after components load
-    const loader = document.querySelector(".preloader");
+    console.log("All components loaded");
 
-    if (loader) {
-        loader.style.display = "none";
-    }
+    // NOW load scripts that depend on header/footer
+    await loadScript("/assets/js/theme-script.js");
 
-    console.log("All common components loaded");
 });
