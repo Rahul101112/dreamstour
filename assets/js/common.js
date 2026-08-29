@@ -1,42 +1,74 @@
 console.log("common.js started");
 
-// Load Header
-fetch('/includes/header.html')
-    .then(response => {
+// Function to load HTML components
+async function loadComponent(elementId, filePath) {
+    try {
+        const response = await fetch(filePath);
+
         if (!response.ok) {
-            throw new Error("Header failed to load");
+            throw new Error(`Failed to load ${filePath}`);
         }
-        return response.text();
-    })
-    .then(data => {
-        const header = document.getElementById('header-placeholder');
 
-        if (header) {
-            header.innerHTML = data;
-            console.log("Header loaded successfully");
+        const html = await response.text();
+
+        const element = document.getElementById(elementId);
+
+        if (element) {
+            element.innerHTML = html;
+            console.log(`${filePath} loaded successfully`);
         }
-    })
-    .catch(error => {
-        console.error("Header error:", error);
+
+    } catch (error) {
+        console.error(`Error loading ${filePath}:`, error);
+    }
+}
+
+
+// Function to load JavaScript dynamically
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+
+        script.src = src;
+
+        script.onload = () => {
+            console.log(`${src} loaded successfully`);
+            resolve();
+        };
+
+        script.onerror = () => {
+            console.error(`Failed to load ${src}`);
+            reject();
+        };
+
+        document.body.appendChild(script);
     });
+}
 
 
-// Load Footer
-fetch('/includes/footer.html')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Footer failed to load");
-        }
-        return response.text();
-    })
-    .then(data => {
-        const footer = document.getElementById('footer-placeholder');
+// Load everything in correct order
+async function initializeWebsite() {
 
-        if (footer) {
-            footer.innerHTML = data;
-            console.log("Footer loaded successfully");
-        }
-    })
-    .catch(error => {
-        console.error("Footer error:", error);
-    });
+    // 1. Load Header
+    await loadComponent(
+        "header-placeholder",
+        "/includes/header.html"
+    );
+
+    // 2. Load Footer
+    await loadComponent(
+        "footer-placeholder",
+        "/includes/footer.html"
+    );
+
+    console.log("All components loaded");
+
+    // 3. Load theme JavaScript AFTER header exists
+    await loadScript("/assets/js/theme-script.js");
+
+    console.log("Website initialized successfully");
+}
+
+
+// Start
+initializeWebsite();
