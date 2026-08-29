@@ -6,7 +6,7 @@
     Author: Dreams Technologies
     Author URI: https://themeforest.net/user/dreamstechnologies
 
------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 
 /*============================
 [Table of CSS]
@@ -95,6 +95,11 @@ header {
   -moz-transition: all 0.5s;
   -o-transition: all 0.5s;
   transition: all 0.5s;
+}
+
+
+.preloader {
+    display: none !important;
 }
 
 /*---------------------------------------------------------------------------------
